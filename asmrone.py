@@ -34,10 +34,3 @@ def getTrackUrls(path: dict, json):
             del path[0]
             return getTrackUrls(path, json)
     return json
-
-url = "https://asmr.one/work/RJ01032675?path=%5B%22mp3%5B320kbps%5D%22,%2201_%E6%9C%AC%E7%B7%A8%22%5D#work-tree"
-directory = getDir(url)
-code = getCode(url)
-tree = getWork(code)
-links = getTrackUrls(directory, tree)
-print(links[0]['mediaDownloadUrl'])
