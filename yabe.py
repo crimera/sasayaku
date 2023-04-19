@@ -1,17 +1,14 @@
 from datetime import timedelta
 from utils import embed
 
-import ffmpeg
-from abc import ABC,abstractmethod
 from faster_whisper import WhisperModel
 
 import whisper
 
-class Model(ABC):
+class Model():
     def __init__(self, model_path):
         self.model_path = model_path
 
-    @abstractmethod
     def transcribe(self):
         pass 
 
@@ -22,8 +19,13 @@ class Whisper(Model):
         print(result.srt)
 
 class FasterWhisper(Model):
-    def transcribe(self, filename: str, device="cpu", compute_type="int8"):
-        model = WhisperModel(self.model_path, device=device, compute_type=compute_type);
+    def __init__(self, model_path, device="cpu", compute_type="int8"):
+        super().__init__(model_path)
+        self.device = device
+        self.compute_type = compute_type
+
+    def transcribe(self, filename: str):
+        model = WhisperModel(self.model_path, device=self.device, compute_type=self.compute_type);
 
         segments, info = model.transcribe(
             filename, beam_size=1, best_of=1, temperature=0, task="translate", vad_filter=True
