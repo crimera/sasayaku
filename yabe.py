@@ -4,6 +4,9 @@ from utils import embed
 from faster_whisper import WhisperModel
 
 import whisper
+from whisper.utils import (
+    get_writer
+)
 
 class Model():
     def __init__(self, model_path):
@@ -15,8 +18,10 @@ class Model():
 class Whisper(Model):
     def transcribe(self, filename): 
         model = whisper.load_model(self.model_path)
+        
+        writer = get_writer("srt", "")
         result = model.transcribe(filename)
-        print(result.srt)
+        writer(result, filename)
 
 class FasterWhisper(Model):
     def __init__(self, model_path, device="cpu", compute_type="int8"):
