@@ -80,11 +80,10 @@ def cli():
             model = Whisper(model_size) if _model == "whisper" else FasterWhisper(model_path=model_path, device=device, compute_type=compute_type)
             
             transcribe_and_embed(model, filename)
+            # Move files
+            move([output_filename, output_subs_filename], output_path, True)
         else:
-            print(f"${output_filename} found, not transcribing")
-
-        # Move files
-        move([output_filename, output_subs_filename], output_path, True)
+            print(f"{output_filename} found, not transcribing") 
 
 if __name__ == "__main__":
     cli()
