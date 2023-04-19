@@ -1,59 +1,30 @@
 from datetime import timedelta
+from utils import embed
 
 import ffmpeg
+from abc import ABC,abstractmethod
 from faster_whisper import WhisperModel
 
-# @title Download and transcribe automatically saving to gdrive
-url = "https://raw.kiko-play-niptan.one/media/download/daily/2023-04-04/RJ01032675/mp3%5B320kbps%5D/01_%E6%9C%AC%E7%B7%A8/01_%E3%82%88%E3%81%86%E3%81%93%E3%81%9D%E3%82%84%E3%81%8A%E3%82%88%E3%82%8D%E6%B8%A9%E6%B3%89%E9%83%B7%E3%81%B8%EF%BD%9E%E5%A4%A7%E5%A5%BD%E3%81%8D%E3%81%AA%E3%81%82%E3%81%AA%E3%81%9F%E3%81%AB%E3%81%94%E6%81%A9%E8%BF%94%E3%81%97%E3%81%97%E3%81%BE%E3%81%99%EF%BD%9E.mp3"  # @param {type:"string"}
+import whisper
 
-def embed(filename: str, subs: str, output: str):    
-    # Define input streams
-    audio_stream = ffmpeg.input(filename)
-    subtitle_stream = ffmpeg.input(subs)
-    
-    # Define output stream with parameters
-    output_stream = ffmpeg.output(
-        audio_stream,
-        subtitle_stream,
-        output,
-        acodec="copy",
-        scodec="copy",
-        **{"metadata:s:s:0": "language=jpn", "metadata": "title="}
-    )
-    
-    # Overwrite output file if exists
-    output_stream = ffmpeg.overwrite_output(output_stream)
-    
-    # Print equivalent ffmpeg command
-    print(ffmpeg.compile(output_stream))
-    
-    # Run the command
-    ffmpeg.run(output_stream)
+class Model(ABC):
+    def __init__(self, model_path):
+        self.model_path = model_path
 
-class VideoTranscriber:
-    def __init__(self, model_path: str):
-        self.model_path: str = model_path
+    @abstractmethod
+    def transcribe(self):
+        pass 
 
-    def transcribe_and_embed(self, filename):
-        srt_filename = f"{filename}.srt"
-        output_filename = f"{filename}.mkv"
+class Whisper(Model):
+    def transcribe(self, filename): 
+        model = whisper.load_model(self.model_path)
+        result = model.transcribe(filename)
+        print(result.srt)
 
-        # Generate translation
-        # !whisper --model=large-v2 --initial_prompt="$filename" --task=translate "$filename"
-        # model_path = "whisper-large-v2-ct2/"
-        model_path = self.model_path
+class FasterWhisper(Model):
+    def transcribe(self, filename: str, device="cpu", compute_type="int8"):
+        model = WhisperModel(self.model_path, device=device, compute_type=compute_type);
 
-        # Run on GPU with FP16
-        # model = WhisperModel(model_path, device="cuda", compute_type="float16")
-        # fp 32
-        # model = WhisperModel(model_path, device="cuda", compute_type="float32")
-        # or run on GPU with INT8
-        # model = WhisperModel(model_path, device="cuda", compute_type="int8_float16")
-        # or run on CPU with INT8
-        model = WhisperModel(model_path, device="cpu", compute_type="int8")
-
-        # lowered the beam, so it will be faster testing it on my laptop, but originally it should be 4 on colab also
-        # made temperature 0
         segments, info = model.transcribe(
             filename, beam_size=1, best_of=1, temperature=0, task="translate", vad_filter=True
         )
@@ -66,7 +37,6 @@ class VideoTranscriber:
             minutes, seconds = divmod(rem, 60)
             return "{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)
 
-        # is actually srt just to lazy to change all proceeding srt's are vtt.
         lines = []
 
         for i, segment in enumerate(segments):
@@ -78,9 +48,14 @@ class VideoTranscriber:
             print(srt_line)
             lines.append(srt_line)
 
-        with open(srt_filename, 'w') as f:
+        with open(f"{filename}.srt", 'w') as f:
             print("executed")
             f.write("".join(lines))
 
-        # Embed the subtitle into the video
-        embed(filename, srt_filename, output_filename)
+def transcribe_and_embed(model: Model, filename: str):
+    srt_filename = f"{filename}.srt"
+    output_filename = f"{filename}.mkv"
+
+    model.transcribe(filename)
+
+    embed(filename, srt_filename, output_filename)
