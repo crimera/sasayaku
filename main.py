@@ -1,4 +1,4 @@
-import yabe
+from yabe import transcribe_and_embed, FasterWhisper
 import asmrone
 import shutil
 import utils
@@ -19,7 +19,6 @@ def move(src: dict, out: str, makedir: bool):
     for file in src:
         shutil.move(file, out)
 
-transcriber = yabe.VideoTranscriber("../../whisper-large-v2-ct2/")
 drivepath = "/home/gura/AI/whisper/projects/autotranscribe"
 
 print("getting tracks...")
@@ -54,7 +53,7 @@ for index, link in enumerate(links):
     print("transcribing...")
     if not os.path.exists(output_filename):
       print("file already exists")
-      transcriber.transcribe_and_embed(filename)
+      transcribe_and_embed(FasterWhisper("../../whisper-large-v2-ct2/"), filename)
 
     # Move files
     move([output_filename, output_subs_filename], output_path, True)
