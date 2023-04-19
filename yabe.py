@@ -55,13 +55,13 @@ class FasterWhisper(Model):
             print(srt_line)
             lines.append(srt_line)
 
-        with open(f"{filename}.srt", 'w') as f:
+        with open(filename.rsplit(".", 1)[0]+".srt", 'w') as f:
             print("executed")
             f.write("".join(lines))
 
 def transcribe_and_embed(model: Model, filename: str):
-    srt_filename = f"{filename}.srt"
-    output_filename = f"{filename}.mkv"
+    srt_filename = filename.rsplit(".", 1)[0]+".srt"
+    output_filename = filename.rsplit(".", 1)[0]+".mkv"
 
     model.transcribe(filename)
 

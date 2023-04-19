@@ -66,8 +66,8 @@ def cli():
 
         # download
         filename = utils.download(track_link)
-        output_filename = f"{filename}.mp4"
-        output_subs_filename = f"{filename}.srt"
+        output_filename = filename.rsplit(".", 1)[0]+".mkv"
+        output_subs_filename = filename.rsplit(".", 1)[0]+".srt"
 
         # transcribe
         print("transcribing...")
