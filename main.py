@@ -75,7 +75,7 @@ def cli():
             print("file is already downloaded")
 
         # transcribe
-        if not os.path.exists(output_filename):
+        if not os.path.exists(output_path+output_filename):
             print("transcribing...")
             model = Whisper(model_size) if _model == "whisper" else FasterWhisper(model_path=model_path, device=device, compute_type=compute_type)
             
