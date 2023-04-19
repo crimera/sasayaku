@@ -23,6 +23,7 @@ def cli():
     parser.add_argument("--model", help="name or path of the Whisper model to use")
     parser.add_argument("--device", default="cuda", choices=["cpu", "cuda"], help="the device to use for transcribeing")
     parser.add_argument("--compute_type", default="float32" ,choices=["float32", "float16", "int8_float16", "int8"], help="The compute type used")
+    parser.add_argument("--output", type=str, help="The output path")
     parser.add_argument("url", type=str, help="url to download")
 
     args = parser.parse_args()
@@ -30,8 +31,7 @@ def cli():
     model = args.model
     device = args.device
     compute_type = args.compute_type
-
-    drivepath = "/home/gura/AI/whisper/projects/autotranscribe"
+    drivepath = args.output
 
     print("getting tracks...")
     directory = asmrone.get_dir(url)
