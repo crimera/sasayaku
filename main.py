@@ -1,5 +1,5 @@
 import argparse
-from yabe import transcribe_and_embed, FasterWhisper
+from yabe import Whisper, transcribe_and_embed, FasterWhisper
 import asmrone
 import shutil
 import utils
@@ -20,15 +20,19 @@ def move(src: dict, out: str, makedir: bool):
 
 def cli():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--model", help="name or path of the Whisper model to use")
+    parser.add_argument("--model", help="whisper model to use")
+    parser.add_argument("--model_path", help="name or path of the Whisper model to use")
+    parser.add_argument("--model_size", default="small", help="the model to use when using the original whisper inference")
     parser.add_argument("--device", default="cuda", choices=["cpu", "cuda"], help="the device to use for transcribeing")
     parser.add_argument("--compute_type", default="float32" ,choices=["float32", "float16", "int8_float16", "int8"], help="The compute type used")
     parser.add_argument("--output", type=str, help="The output path")
     parser.add_argument("url", type=str, help="url to download")
 
     args = parser.parse_args()
+    _model = args.model
     url = args.url
-    model = args.model
+    model_path = args.model_path
+    model_size = args.model_size
     device = args.device
     compute_type = args.compute_type
     drivepath = args.output
@@ -69,7 +73,9 @@ def cli():
         print("transcribing...")
         if not os.path.exists(output_filename):
             print("file already exists")
-            transcribe_and_embed(FasterWhisper(model, device=device, compute_type=compute_type), filename)
+            model = Whisper(model_size) if _model == "whisper" else FasterWhisper(model_path=model_path, device=device, compute_type=compute_type)
+            
+            transcribe_and_embed(model, filename)
 
         # Move files
         move([output_filename, output_subs_filename], output_path, True)
