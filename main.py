@@ -46,6 +46,10 @@ def cli():
     print(f"found: {len(links)} tracks")
 
     for index, link in enumerate(links):
+        if not link['title'].endswith(("mp3", "wav", "opus", "flac")):
+            print("not a valid audio file")
+            continue
+
         print(f"Downloading [{index+1}/{len(links)}]")
     
         if 'mediaDownloadUrl' not in link.keys():
