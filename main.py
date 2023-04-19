@@ -50,7 +50,11 @@ def cli():
     print(f"found: {len(links)} tracks")
 
     for index, link in enumerate(links):
-        if not link['title'].endswith(("mp3", "wav", "opus", "flac")):
+        filename = link['title']
+        output_filename = filename.rsplit(".", 1)[0]+".mkv"
+        output_subs_filename = filename.rsplit(".", 1)[0]+".srt"
+
+        if not filename.endswith(("mp3", "wav", "opus", "flac")):
             print("not a valid audio file")
             continue
 
@@ -61,21 +65,23 @@ def cli():
             continue
     
         track_link = link['mediaDownloadUrl']
-        print(link['title'])
+        print(filename)
         print(track_link)
 
         # download
-        filename = utils.download(track_link)
-        output_filename = filename.rsplit(".", 1)[0]+".mkv"
-        output_subs_filename = filename.rsplit(".", 1)[0]+".srt"
+        if not os.path.exists(link['title']):
+            utils.download(track_link)
+        else:
+            print("file is already downloaded")
 
         # transcribe
-        print("transcribing...")
         if not os.path.exists(output_filename):
-            print("file already exists")
+            print("transcribing...")
             model = Whisper(model_size) if _model == "whisper" else FasterWhisper(model_path=model_path, device=device, compute_type=compute_type)
             
             transcribe_and_embed(model, filename)
+        else:
+            print(f"${output_filename} found, not transcribing")
 
         # Move files
         move([output_filename, output_subs_filename], output_path, True)
