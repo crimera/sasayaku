@@ -31,7 +31,7 @@ def cli():
 
     args = parser.parse_args()
     _model = args.model
-    task = args.translate
+    task = args.task
     url = args.url
     model_path = args.model_path
     model_size = args.model_size
