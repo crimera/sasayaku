@@ -21,6 +21,7 @@ def move(src: dict, out: str, makedir: bool):
 def cli():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--model", help="whisper model to use")
+    parser.add_argument("--task", default="translate", choices=["translate", "transcribe"], help="Either you translate or just transcribe the audio")
     parser.add_argument("--model_path", help="name or path of the Whisper model to use")
     parser.add_argument("--model_size", default="small", help="the model to use when using the original whisper inference")
     parser.add_argument("--device", default="cuda", choices=["cpu", "cuda"], help="the device to use for transcribeing")
@@ -30,6 +31,7 @@ def cli():
 
     args = parser.parse_args()
     _model = args.model
+    task = args.translate
     url = args.url
     model_path = args.model_path
     model_size = args.model_size
@@ -77,7 +79,7 @@ def cli():
         # transcribe
         if not os.path.exists(output_path+output_filename):
             print("transcribing...")
-            model = Whisper(model_size) if _model == "whisper" else FasterWhisper(model_path=model_path, device=device, compute_type=compute_type)
+            model = Whisper(model_size, task) if _model == "whisper" else FasterWhisper(model_path=model_path, device=device, compute_type=compute_type)
             
             transcribe_and_embed(model, filename)
             # Move files

@@ -16,11 +16,11 @@ class Model():
         pass 
 
 class Whisper(Model):
-    def transcribe(self, filename): 
+    def transcribe(self, filename: str, task: str): 
         model = whisper.load_model(self.model_path)
         
         writer = get_writer("srt", "")
-        result = model.transcribe(filename, task="translate")
+        result = model.transcribe(filename, task=task)
         writer(result, filename)
 
 class FasterWhisper(Model):
