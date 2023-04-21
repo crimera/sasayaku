@@ -23,11 +23,12 @@ def download(url):
         c.close()
     return filename
 
-def embed(filename: str, subs: str, output: str):    
+
+def embed(filename: str, subs: str, output: str):
     # Define input streams
     audio_stream = ffmpeg.input(filename)
     subtitle_stream = ffmpeg.input(subs)
-    
+
     # Define output stream with parameters
     output_stream = ffmpeg.output(
         audio_stream,
@@ -37,12 +38,12 @@ def embed(filename: str, subs: str, output: str):
         scodec="copy",
         **{"metadata:s:s:0": "language=jpn", "metadata": "title="}
     )
-    
+
     # Overwrite output file if exists
     output_stream = ffmpeg.overwrite_output(output_stream)
-    
+
     # Print equivalent ffmpeg command
     print(ffmpeg.compile(output_stream))
-    
+
     # Run the command
     ffmpeg.run(output_stream)
