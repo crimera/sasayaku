@@ -1,6 +1,6 @@
 from datetime import timedelta
 from utils import embed
-from os import path
+from os import path, getcwd
 
 from faster_whisper import WhisperModel
 
@@ -13,10 +13,11 @@ from whisper.utils import (
 
 
 class Model(ABC):
-    def __init__(self, model_path, device="cpu", compute_type="int8"):
+    def __init__(self, model_path, task: str = "translate", device: str = "cpu", compute_type: str = "int8"):
         self.model_path = model_path
         self.device = device
         self.compute_type = compute_type
+        self.task = task
 
 
 class Whisper(Model):
@@ -24,7 +25,7 @@ class Whisper(Model):
         model = whisper.load_model(self.model_path)
 
         writer = get_writer("srt", "")
-        result = model.transcribe(filename, task=task)
+        result = model.transcribe(filename, task=self.task)
         writer(result, filename)
 
 
@@ -34,7 +35,7 @@ class FasterWhisper(Model):
             self.model_path, device=self.device, compute_type=self.compute_type)
 
         segments, info = model.transcribe(
-            filename, beam_size=1, best_of=1, temperature=0, task="transcribe", vad_filter=True
+            filename, beam_size=1, best_of=1, temperature=0, task=self.task, vad_filter=True
         )
 
         print("Detected language '%s' with probability %f" %
@@ -61,10 +62,11 @@ class FasterWhisper(Model):
             print("executed")
             f.write("".join(lines))
 
-def transcribe_and_embed(model: Model, filename: str, output: str = ""):
+
+def transcribe_and_embed(model: Model, filename: str, output_path: str = getcwd()):
     srt_filename = filename.rsplit(".", 1)[0]+".srt"
     output_filename = filename.rsplit(".", 1)[0]+".mkv"
 
     model(filename)
 
-    embed(filename, srt_filename, path.join(output, output_filename))
+    embed(filename, srt_filename, path.join(output_path, output_filename.rsplit("/", 1)[1]))
