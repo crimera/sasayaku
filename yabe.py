@@ -24,7 +24,7 @@ class Whisper(Model):
         model = whisper.load_model(self.model_path)
 
         writer = get_writer("srt", "")
-        result = model.transcribe(filename, task="translate")
+        result = model.transcribe(filename, task=task)
         writer(result, filename)
 
 
