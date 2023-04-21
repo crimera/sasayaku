@@ -25,6 +25,7 @@ def cli():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--model", help="whisper model to use")
     parser.add_argument("--model_path", help="name or path of the Whisper model to use")
+    parser.add_argument("--task", choices=["transcribe", "translate"], help="task for the transciber")
     parser.add_argument("--model_size", default="small", help="the model to use when using the original whisper inference")
     parser.add_argument("--device", default="cuda", choices=["cpu", "cuda"], help="the device to use for transcribeing")
     parser.add_argument("--compute_type", default="float32" ,choices=["float32", "float16", "int8_float16", "int8"], help="The compute type used")
@@ -81,10 +82,10 @@ def cli():
         # transcribe
         if not os.path.exists(output_path+output_filename):
             print("transcribing...")
-            model = Whisper(model_size) if _model == "whisper" else FasterWhisper(
+            model = Whisper(model_size, task=task) if _model == "whisper" else FasterWhisper(
                 model_path=model_path, device=device, compute_type=compute_type)
 
-            transcribe_and_embed(model, filename, output_path+output_filename)
+            transcribe_and_embed(model, filename, output_path)
         else:
             print(f"{output_filename} found, not transcribing")
 

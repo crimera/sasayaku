@@ -69,4 +69,4 @@ def transcribe_and_embed(model: Model, filename: str, output_path: str = getcwd(
 
     model(filename)
 
-    embed(filename, srt_filename, path.join(output_path, output_filename.rsplit("/", 1)[1]))
+    embed(filename, srt_filename, path.join(output_path, output_filename.rsplit("/", 1)[-1]))
