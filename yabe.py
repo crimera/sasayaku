@@ -65,6 +65,6 @@ def transcribe_and_embed(model: Model, filename: str, output: str = ""):
     srt_filename = filename.rsplit(".", 1)[0]+".srt"
     output_filename = filename.rsplit(".", 1)[0]+".mkv"
 
-    model.transcribe(filename)
+    model(filename)
 
     embed(filename, srt_filename, path.join(output, output_filename))
