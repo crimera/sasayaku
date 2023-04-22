@@ -42,20 +42,22 @@ def cli():
     device = args.device
     compute_type = args.compute_type
     drivepath = args.output
+    save_thumbnail = args.save_thumbnail
 
     print("getting tracks...")
     directory = asmrone.get_dir(url)
     code = asmrone.get_code(url)
     tree = asmrone.get_work(code)
     links = asmrone.get_track_urls(directory, tree)
+    thumbnail = asmrone.get_thumbnail(code) if save_thumbnail == True else ""
 
     output_path = f"{drivepath}/RJ{code}/"
     if not os.path.exists(output_path):
         os.mkdir(output_path)
 
-    if args.save_thumbnail==True:
+    if save_thumbnail==True:
         print("saving thumbnail")
-        utils.download(asmrone.get_thumbnail(code), output_path)
+        utils.download(thumbnail, output_path)
 
     print(f"found: {len(links)} tracks")
 
@@ -88,6 +90,10 @@ def cli():
                 model_path=model_path, device=device, compute_type=compute_type)
 
             transcribe_and_embed(model, filename, output_path)
+
+            thumb_path = output_path+utils.get_filename(thumbnail)
+            os.path.join(output_path+output_filename, thumb_path, output_path)
+
         else:
             print(f"{output_filename} found, not transcribing")
 

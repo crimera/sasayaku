@@ -11,8 +11,7 @@ def download(url, output: str = ""):
     c.setopt(c.URL, url)
     # get the filename
     effective_url = c.getinfo(pycurl.EFFECTIVE_URL)
-    filename = os.path.basename(urllib.parse.unquote(urllib.parse.urlsplit(effective_url).path))
-
+    filename = get_filename(effective_url)
     outpath = os.path.join(output, filename)
     if os.path.exists(outpath):
         print(f"{outpath} is already downloaded")
@@ -27,6 +26,24 @@ def download(url, output: str = ""):
         c.perform()
         # Close the Curl object
         c.close()
+
+def get_filename(url: str) -> str:
+    return os.path.basename(urllib.parse.unquote(urllib.parse.urlsplit(url).path))
+
+def embed_thumbnail(filename: str, thumbnail: str, output_path):
+    vid = ffmpeg.input(filename)
+    thumb = ffmpeg.input(thumbnail)
+
+    output = ffmpeg.output(
+        vid,
+        thumb,
+        output_path,
+        acodec="copy",
+        scodec="copy"
+    )
+
+    print(ffmpeg.compile(output))
+    ffmpeg.run(output)
 
 def embed(filename: str, subs: str, output: str):
     # Define input streams
