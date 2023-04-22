@@ -92,7 +92,7 @@ def cli():
             transcribe_and_embed(model, filename, output_path)
 
             thumb_path = output_path+utils.get_filename(thumbnail)
-            os.path.join(output_path+output_filename, thumb_path, output_path)
+            utils.embed_thumbnail(output_path+output_filename, thumb_path, output_path)
 
         else:
             print(f"{output_filename} found, not transcribing")
