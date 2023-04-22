@@ -32,28 +32,17 @@ def download(url, output: str = ""):
 def get_filename(url: str) -> str:
     return os.path.basename(urllib.parse.unquote(urllib.parse.urlsplit(url).path))
 
-# try this: https://stackoverflow.com/questions/62267923/ffmpeg-python-library-to-add-a-custom-thumbnail-to-a-mp4-file-using-ffmpeg
-def embed_thumbnail(filename: str, thumbnail: str, output_path):
-    video = ffmpeg.input(filename)
-    cover = ffmpeg.input(thumbnail)
-    (
-    ffmpeg
-    .output(video, cover, output_path, c='copy', **{'c:v:1': 'png'}, **{'disposition:v:1': 'attached_pic'})
-    .global_args('-map', '0')
-    .global_args('-map', '1')
-    .global_args('-loglevel', 'error')
-    .run()
-    )
-
-def embed(filename: str, subs: str, output: str):
+def embed(filename: str, subs: str, thumbnail: str, output: str):
     # Define input streams
     audio_stream = ffmpeg.input(filename)
     subtitle_stream = ffmpeg.input(subs)
+    cover = ffmpeg.input(thumbnail)
 
     # Define output stream with parameters
     output_stream = ffmpeg.output(
         audio_stream,
         subtitle_stream,
+        cover,
         output,
         acodec="copy",
         scodec="copy",

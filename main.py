@@ -89,10 +89,8 @@ def cli():
             model = Whisper(model_size, task=task) if _model == "whisper" else FasterWhisper(
                 model_path=model_path, device=device, compute_type=compute_type)
 
-            transcribe_and_embed(model, filename, output_path)
-
             thumb_path = output_path+utils.get_filename(thumbnail)
-            utils.embed_thumbnail(output_path+output_filename, thumb_path, output_path+output_filename)
+            transcribe_and_embed(model, filename, thumb_path, output_path)
 
         else:
             print(f"{output_filename} found, not transcribing")
