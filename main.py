@@ -25,6 +25,7 @@ def cli():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--model", help="whisper model to use")
     parser.add_argument("--model_path", help="name or path of the Whisper model to use")
+    parser.add_argument("--save_thumbnail", help="downloads the thumbnail of the work")
     parser.add_argument("--task", choices=["transcribe", "translate"], help="task for the transciber")
     parser.add_argument("--model_size", default="small", help="the model to use when using the original whisper inference")
     parser.add_argument("--device", default="cuda", choices=["cpu", "cuda"], help="the device to use for transcribeing")
@@ -52,6 +53,10 @@ def cli():
     if not os.path.exists(output_path):
         os.mkdir(output_path)
 
+    if args.save_thumbnail:        
+        print("saving thumbnail")
+        utils.download(asmrone.get_thumbnail(code), output_path)
+
     print(f"found: {len(links)} tracks")
 
     for index, link in enumerate(links):
@@ -74,10 +79,7 @@ def cli():
         print(track_link)
 
         # download
-        if not os.path.exists(filename):
-            utils.download(track_link)
-        else:
-            print(f"{filename} is already downloaded")
+        utils.download(track_link)
 
         # transcribe
         if not os.path.exists(output_path+output_filename):
