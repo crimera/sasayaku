@@ -57,7 +57,7 @@ def cli():
 
     if save_thumbnail==True:
         print("saving thumbnail")
-        utils.download(thumbnail)
+        utils.download(thumbnail, output_path)
 
     print(f"found: {len(links)} tracks")
 
@@ -91,7 +91,8 @@ def cli():
 
             transcribe_and_embed(model, filename, output_path)
 
-            utils.embed_thumbnail(output_path+output_filename, utils.get_filename(thumbnail), output_path)
+            thumb_path = output_path+utils.get_filename(thumbnail)
+            utils.embed_thumbnail(output_path+output_filename, thumb_path, output_path)
 
         else:
             print(f"{output_filename} found, not transcribing")

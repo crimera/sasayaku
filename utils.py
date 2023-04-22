@@ -1,6 +1,7 @@
 import pycurl
 import os
 import ffmpeg
+from asmrone import USERAGENT
 import urllib.parse
 
 
@@ -8,7 +9,8 @@ def download(url, output: str = ""):
     # Create a Curl object
     c = pycurl.Curl()
     # Set the URL of the file to download
-    c.setopt(c.URL, url)
+    c.setopt(pycurl.URL, url)
+    c.setopt(pycurl.USERAGENT, USERAGENT)
     # get the filename
     effective_url = c.getinfo(pycurl.EFFECTIVE_URL)
     filename = get_filename(effective_url)
