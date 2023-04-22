@@ -1,10 +1,10 @@
 import pycurl
 import os
-import ffmpeg
+#import ffmpeg
 import urllib.parse
 
 
-def download(url):
+def download(url, output: str = ""):
     # Create a Curl object
     c = pycurl.Curl()
     # Set the URL of the file to download
@@ -13,16 +13,20 @@ def download(url):
     effective_url = c.getinfo(pycurl.EFFECTIVE_URL)
     filename = urllib.parse.unquote(os.path.basename(effective_url))
 
+    outpath = os.path.join(output, filename)
+    if os.path.exists(outpath):
+        print(f"{outpath} is already downloaded")
+        c.close()
+        return
+
     # Set the name of the output file
-    with open(filename, 'wb') as f:
+    with open(outpath, 'wb') as f:
         # Write the downloaded data to the file
         c.setopt(c.WRITEDATA, f)
         # Perform the request
         c.perform()
         # Close the Curl object
         c.close()
-    return filename
-
 
 def embed(filename: str, subs: str, output: str):
     # Define input streams
