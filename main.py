@@ -53,7 +53,7 @@ def cli():
     if not os.path.exists(output_path):
         os.mkdir(output_path)
 
-    if args.save_thumbnail==False:
+    if args.save_thumbnail==True:
         print("saving thumbnail")
         utils.download(asmrone.get_thumbnail(code), output_path)
 
