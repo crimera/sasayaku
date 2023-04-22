@@ -1,4 +1,5 @@
 import pycurl
+from asmrone import USERAGENT
 import os
 import ffmpeg
 import urllib.parse
@@ -9,9 +10,11 @@ def download(url, output: str = ""):
     c = pycurl.Curl()
     # Set the URL of the file to download
     c.setopt(c.URL, url)
+    c.setopt(pycurl.USERAGENT, USERAGENT)
     # get the filename
     effective_url = c.getinfo(pycurl.EFFECTIVE_URL)
-    filename = os.path.basename(urllib.parse.unquote(urllib.parse.urlsplit(effective_url).path))
+    filename = os.path.basename(urllib.parse.unquote(
+        urllib.parse.urlsplit(effective_url).path))
 
     outpath = os.path.join(output, filename)
     if os.path.exists(outpath):
@@ -27,6 +30,7 @@ def download(url, output: str = ""):
         c.perform()
         # Close the Curl object
         c.close()
+
 
 def embed(filename: str, subs: str, output: str):
     # Define input streams
