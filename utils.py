@@ -11,7 +11,7 @@ def download(url, output: str = ""):
     c.setopt(c.URL, url)
     # get the filename
     effective_url = c.getinfo(pycurl.EFFECTIVE_URL)
-    filename = os.path.basename(urllib.parse.urlsplit(effective_url).path)
+    filename = os.path.basename(urllib.parse.unquote(urllib.parse.urlsplit(effective_url).path))
 
     outpath = os.path.join(output, filename)
     if os.path.exists(outpath):
