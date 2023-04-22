@@ -63,10 +63,10 @@ class FasterWhisper(Model):
             f.write("".join(lines))
 
 
-def transcribe_and_embed(model: Model, filename: str, output_path: str = getcwd()):
+def transcribe_and_embed(model: Model, filename: str, thumbnail: str, output_path: str = getcwd()):
     srt_filename = filename.rsplit(".", 1)[0]+".srt"
     output_filename = filename.rsplit(".", 1)[0]+".mkv"
 
     model(filename)
 
-    embed(filename, srt_filename, path.join(output_path, output_filename.rsplit("/", 1)[-1]))
+    embed(filename, srt_filename, thumbnail, path.join(output_path, output_filename.rsplit("/", 1)[-1]))
