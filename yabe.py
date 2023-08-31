@@ -13,11 +13,13 @@ from whisper.utils import (
 
 
 class Model(ABC):
-    def __init__(self, model_path, task: str = "translate", device: str = "cpu", compute_type: str = "int8"):
+    def __init__(self, model_path, task: str = "translate", device: str = "cpu", compute_type: str = "int8", beam_size: int = 5, vad_filter: bool = False):
         self.model_path = model_path
         self.device = device
         self.compute_type = compute_type
         self.task = task
+        self.beam_size = beam_size
+        self.vad_filter = vad_filter
 
 
 class Whisper(Model):
@@ -35,7 +37,7 @@ class FasterWhisper(Model):
             self.model_path, device=self.device, compute_type=self.compute_type)
 
         segments, info = model.transcribe(
-            filename, beam_size=1, best_of=1, temperature=0, task=self.task, vad_filter=True
+            filename, beam_size=self.beam_size, task=self.task, vad_filter=self.vad_filter
         )
 
         print("Detected language '%s' with probability %f" %

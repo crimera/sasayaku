@@ -26,6 +26,7 @@ def cli():
     parser.add_argument("--model", help="whisper model to use")
     parser.add_argument("--model_path", help="name or path of the Whisper model to use")
     parser.add_argument("--save_thumbnail", default=False, action=argparse.BooleanOptionalAction, help="downloads the thumbnail of the work")
+    parser.add_argument("--vad_filter", default=False, action=argparse.BooleanOptionalAction, help="applies vad filter")
     parser.add_argument("--task", choices=["transcribe", "translate"], help="task for the transciber")
     parser.add_argument("--model_size", default="small", help="the model to use when using the original whisper inference")
     parser.add_argument("--device", default="cuda", choices=["cpu", "cuda"], help="the device to use for transcribeing")
@@ -43,6 +44,7 @@ def cli():
     compute_type = args.compute_type
     drivepath = args.output
     save_thumbnail = args.save_thumbnail
+    vad_filter = args.vad_filter
 
     print("getting tracks...")
     directory = asmrone.get_dir(url)
@@ -87,7 +89,7 @@ def cli():
         if not os.path.exists(output_path+output_filename):
             print("transcribing...")
             model = Whisper(model_size, task=task) if _model == "whisper" else FasterWhisper(
-                model_path=model_path, device=device, compute_type=compute_type)
+                model_path=model_path, device=device, compute_type=compute_type, vad_filter=vad_filter)
 
             thumb_path = output_path+utils.get_filename(thumbnail)
             transcribe_and_embed(model, filename, thumb_path, output_path)
