@@ -37,7 +37,7 @@ def get_thumbnail(code: str):
         headers=HEADERS
     ).json()['mainCoverUrl']
 
-def get_track_urls(path: dict, data):
+def get_track_urls(path: list, data):
     if len(path) == 0:
         return data
     for child in data:
