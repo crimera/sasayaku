@@ -1,10 +1,10 @@
 import argparse
-from yabe import Whisper, transcribe_and_embed, FasterWhisper
+from yabe import transcribe_and_embed, FasterWhisper
 import asmrone
+import yt_dlp
 import shutil
 import utils
 import os
-
 
 def move(src: dict, out: str, makedir: bool):
     if not os.path.exists(out):
@@ -19,33 +19,7 @@ def move(src: dict, out: str, makedir: bool):
     for file in src:
         shutil.move(file, out)
 
-
-def cli():
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--model", help="whisper model to use")
-    parser.add_argument("--model_path", help="name or path of the Whisper model to use")
-    parser.add_argument("--save_thumbnail", default=False, action=argparse.BooleanOptionalAction, help="downloads the thumbnail of the work")
-    parser.add_argument("--vad_filter", default=False, action=argparse.BooleanOptionalAction, help="applies vad filter")
-    parser.add_argument("--task", choices=["transcribe", "translate"], help="task for the transciber")
-    parser.add_argument("--model_size", default="small", help="the model to use when using the original whisper inference")
-    parser.add_argument("--device", default="cuda", choices=["cpu", "cuda"], help="the device to use for transcribeing")
-    parser.add_argument("--compute_type", default="float32" ,choices=["float32", "float16", "int8_float16", "int8"], help="The compute type used")
-    parser.add_argument("--output", type=str, help="The output path")
-    parser.add_argument("url", type=str, help="url to download")
-
-    args = parser.parse_args()
-    _model = args.model
-    task = args.task
-    url = args.url
-    model_path = args.model_path
-    model_size = args.model_size
-    device = args.device
-    compute_type = args.compute_type
-    drivepath = args.output
-    save_thumbnail = args.save_thumbnail
-    vad_filter = args.vad_filter
-
+def asmrone_link(model: FasterWhisper, url: str, save_thumbnail: bool, drivepath: str):
     print("getting tracks...")
     directory = asmrone.get_dir(url)
     code = asmrone.get_code(url)
@@ -88,15 +62,65 @@ def cli():
         # transcribe
         if not os.path.exists(output_path+output_filename):
             print("transcribing...")
-            model = Whisper(model_size, task=task) if _model == "whisper" else FasterWhisper(
-                model_path=model_path, device=device, compute_type=compute_type, vad_filter=vad_filter)
-
             thumb_path = output_path+utils.get_filename(thumbnail)
             transcribe_and_embed(model, filename, thumb_path, output_path)
 
         else:
             print(f"{output_filename} found, not transcribing")
 
+def yt_link(model: FasterWhisper, url: str, drivepath: str):
+    ydl_opts = {
+        'format': 'm4a/bestaudio/best',
+        # ℹ️ See help(yt_dlp.postprocessor) for a list of available Postprocessors and their arguments
+        'postprocessors': [{  # Extract audio using ffmpeg
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'm4a',
+        }],
+    }
+    
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        error_code = ydl.download(url)
+        filename = ydl.get_output_path()
+
+    print(filename)
+
+def cli():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    # parser.add_argument("--model", help="whisper model to use")
+    # parser.add_argument("--model_size", default="small", help="the model to use when using the original whisper inference")
+    parser.add_argument("--model_path", help="name or path of the Whisper model to use")
+    parser.add_argument("--save_thumbnail", default=False, action=argparse.BooleanOptionalAction, help="downloads the thumbnail of the work")
+    parser.add_argument("--vad_filter", default=False, action=argparse.BooleanOptionalAction, help="applies vad filter")
+    parser.add_argument("--task", choices=["transcribe", "translate"], help="task for the transciber")
+    parser.add_argument("--device", default="cuda", choices=["cpu", "cuda"], help="the device to use for transcribeing")
+    parser.add_argument("--compute_type", default="float32" ,choices=["float32", "float16", "int8_float16", "int8"], help="The compute type used")
+    parser.add_argument("--output", type=str, help="The output path")
+    parser.add_argument("url", type=str, help="url to download")
+
+    args = parser.parse_args()
+    # _model = args.model
+    # model_size = args.model_size
+    task = args.task
+    url: str = args.url
+    model_path = args.model_path
+    device = args.device
+    compute_type = args.compute_type
+    drivepath = args.output
+    save_thumbnail = args.save_thumbnail
+    vad_filter = args.vad_filter 
+
+    model = FasterWhisper(
+        model_path=model_path, 
+        task=task,device=device, 
+        compute_type=compute_type, 
+        vad_filter=vad_filter
+    )
+
+    if url.startswith("https://asmr.one"):
+        asmrone_link(model, url, save_thumbnail, drivepath) 
+    else:        
+        yt_link(model, url, drivepath)
 
 if __name__ == "__main__":
     cli()
