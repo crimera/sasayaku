@@ -82,7 +82,9 @@ def yt_link(model: FasterWhisper, url: str, drivepath: str):
         error_code = ydl.download(url)
         filename = ydl.get_output_path()
 
+    print("bruh")
     print(filename)
+    print("wtf")
 
 def cli():
     parser = argparse.ArgumentParser(
