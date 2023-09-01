@@ -87,12 +87,11 @@ def yt_link(model: FasterWhisper, url: str, drivepath: str):
             }],
             "progress_hooks": [my_hook]  # here's the function we just defined
         }
-
-    print(filename)
-    
+ 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download(url)
+        error = ydl.download(url)
     
+    print(filename)
     filename = filename.rsplit(".", 1)[0]+".opus"    
     transcribe_and_embed(model, filename)
 
