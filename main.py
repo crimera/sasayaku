@@ -69,22 +69,30 @@ def asmrone_link(model: FasterWhisper, url: str, save_thumbnail: bool, drivepath
             print(f"{output_filename} found, not transcribing")
 
 def yt_link(model: FasterWhisper, url: str, drivepath: str):
+    filename: str = ""
+    
+    def my_hook(d):
+        if d['status'] == 'finished':
+            global filename
+            filename = d.get('info_dict').get('_filename')
+            print('Done downloading, now post-processing ...')
+    
+    
     ydl_opts = {
-        'format': 'm4a/bestaudio/best',
-        # ℹ️ See help(yt_dlp.postprocessor) for a list of available Postprocessors and their arguments
-        'postprocessors': [{  # Extract audio using ffmpeg
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'm4a',
-        }],
-    }
+            'format': 'bestaudio/best',
+            # ℹ️ See help(yt_dlp.postprocessor) for a list of available Postprocessors and their arguments
+            'postprocessors': [{  # Extract audio using ffmpeg
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'opus',
+            }],
+            "progress_hooks": [my_hook]  # here's the function we just defined
+        }
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        error_code = ydl.download(url)
-        filename = ydl.get_output_path()
-
-    print("bruh")
-    print(filename)
-    print("wtf")
+        ydl.download(url)
+    
+    filename: str = filename.rsplit(".", 1)[0]+".opus"    
+    transcribe_and_embed(model, filename)
 
 def cli():
     parser = argparse.ArgumentParser(

@@ -32,11 +32,11 @@ def download(url, output: str = ""):
 def get_filename(url: str) -> str:
     return os.path.basename(urllib.parse.unquote(urllib.parse.urlsplit(url).path))
 
-def embed(filename: str, subs: str, thumbnail: str, output: str):
+def embed(filename: str, subs: str, output: str, thumbnail: str = ""):
     # Define input streams
     audio_stream = ffmpeg.input(filename)
     subtitle_stream = ffmpeg.input(subs)
-    cover = ffmpeg.input(thumbnail)
+    cover = ffmpeg.input(thumbnail) if thumbnail else ""
 
     # Define output stream with parameters
     output_stream = ffmpeg.output(
@@ -46,7 +46,14 @@ def embed(filename: str, subs: str, thumbnail: str, output: str):
         output,
         acodec="copy",
         scodec="copy",
-        **{"metadata:s:s:0": "language=jpn", "metadata": "title="}
+        **{"metadata:s:s:0": "language=eng"}
+    ) if thumbnail else ffmpeg.output(
+        audio_stream,
+        subtitle_stream,
+        output,
+        acodec="copy",
+        scodec="copy",
+        **{"metadata:s:s:0": "language=eng"}
     )
 
     # Overwrite output file if exists
