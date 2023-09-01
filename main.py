@@ -68,9 +68,9 @@ def asmrone_link(model: FasterWhisper, url: str, save_thumbnail: bool, drivepath
         else:
             print(f"{output_filename} found, not transcribing")
 
-def yt_link(model: FasterWhisper, url: str, drivepath: str):
-    filename = "" 
-    
+filename = "" 
+def yt_link(model: FasterWhisper, url: str, drivepath: str):    
+    global filename
     def my_hook(d):
         if d['status'] == 'finished':
             global filename
@@ -91,7 +91,6 @@ def yt_link(model: FasterWhisper, url: str, drivepath: str):
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         error = ydl.download(url)
     
-    print(filename)
     filename = filename.rsplit(".", 1)[0]+".opus"    
     transcribe_and_embed(model, filename)
 
